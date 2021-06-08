@@ -10,6 +10,10 @@ import org.github.schmittjoaopedro.Utils;
 
 public class FinancialServiceProblem {
 
+    private static Model model;
+    private static Utils utils;
+    private static Solver solver;
+
     private static final int LOW = 0;
     private static final int MEDIUM = 1;
     private static final int HIGH = 2;
@@ -24,7 +28,9 @@ public class FinancialServiceProblem {
 
     private static Model createModel() {
         // MODELLING
-        Model model = new Model("Financial Service Problem");
+        model = new Model("Financial Service Problem");
+        utils = new Utils(model);
+        solver = model.getSolver();
         // Variables and domains
         IntVar willingnessToRisk = model.intVar("willingnessToRisk", new int[]{LOW, MEDIUM, HIGH});
         IntVar investmentDuration = model.intVar("investmentDuration", new int[]{SHORT_TERM, MEDIUM_TERM, LONG_TERM});
@@ -47,46 +53,46 @@ public class FinancialServiceProblem {
 
         // First solution
         System.out.println("\nFirst solution");
-        Model model = createModel();
-        model.getSolver().solve();
-        printSolution(model);
+        model = createModel();
+        solver.solve();
+        printSolution();
 
         // All solutions
         System.out.println("\nAll solutions");
         model = createModel();
-        while (model.getSolver().solve()) {
-            printSolution(model);
+        while (solver.solve()) {
+            printSolution();
         }
 
         // Find restricted solutions
         System.out.println("\nAll solutions given willingnessToRisk = LOW and expectedReturnRate = LOW");
         model = createModel();
-        Utils.getVar(model, "willingnessToRisk").eq(LOW).post(); // New constraint
-        Utils.getVar(model, "investmentDuration").eq(SHORT_TERM).post(); // New constraint
-        while (model.getSolver().solve()) {
-            printSolution(model);
+        utils.getIntVar("willingnessToRisk").eq(LOW).post(); // New constraint
+        utils.getIntVar("investmentDuration").eq(SHORT_TERM).post(); // New constraint
+        while (solver.solve()) {
+            printSolution();
         }
 
         // Explain contradiction
         System.out.println("\nExplain why [willingnessToRisk = LOW, expectedReturnRate = LOW, investmentDuration = SHORT_TERM] doesn't work");
         model = createModel();
-        Utils.getVar(model, "willingnessToRisk").eq(LOW).post(); // New constraint
-        Utils.getVar(model, "investmentDuration").eq(SHORT_TERM).post(); // New constraint
-        Utils.getVar(model, "expectedReturnRate").eq(HIGH).post(); // New constraint
+        utils.getIntVar("willingnessToRisk").eq(LOW).post(); // New constraint
+        utils.getIntVar("investmentDuration").eq(SHORT_TERM).post(); // New constraint
+        utils.getIntVar("expectedReturnRate").eq(HIGH).post(); // New constraint
         try {
-            model.getSolver().setLearningSignedClauses();
+            solver.setLearningSignedClauses();
             XParameters.PROOF = true;
-            model.getSolver().propagate();
+            solver.propagate();
         } catch (ContradictionException c) {
-            ((LearnSignedClauses) model.getSolver().getLearner()).getExplanation().learnSignedClause(c);
+            ((LearnSignedClauses) solver.getLearner()).getExplanation().learnSignedClause(c);
         }
 
     }
 
-    private static void printSolution(Model model) {
-        System.out.print(Utils.getVarFormatted(model, "willingnessToRisk", "LOW", "MEDIUM", "HIGH") + ", ");
-        System.out.print(Utils.getVarFormatted(model, "investmentDuration", "SHORT_TERM", "MEDIUM_TERM", "LONG_TERM") + ", ");
-        System.out.print(Utils.getVarFormatted(model, "expectedReturnRate", "LOW", "MEDIUM", "HIGH") + ", ");
-        System.out.print(Utils.getVarFormatted(model, "productName", "EQUITY_FUND", "INVESTMENT_FUND", "BANK_BOOK") + "\n");
+    private static void printSolution() {
+        System.out.print(utils.getEnumVarFormatted("willingnessToRisk", "LOW", "MEDIUM", "HIGH") + ", ");
+        System.out.print(utils.getEnumVarFormatted("investmentDuration", "SHORT_TERM", "MEDIUM_TERM", "LONG_TERM") + ", ");
+        System.out.print(utils.getEnumVarFormatted("expectedReturnRate", "LOW", "MEDIUM", "HIGH") + ", ");
+        System.out.print(utils.getEnumVarFormatted("productName", "EQUITY_FUND", "INVESTMENT_FUND", "BANK_BOOK") + "\n");
     }
 }

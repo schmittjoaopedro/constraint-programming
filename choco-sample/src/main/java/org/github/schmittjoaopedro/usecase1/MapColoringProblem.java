@@ -1,16 +1,18 @@
 package org.github.schmittjoaopedro.usecase1;
 
 import org.chocosolver.solver.Model;
-import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.learn.XParameters;
 import org.chocosolver.solver.search.loop.learn.LearnSignedClauses;
 import org.chocosolver.solver.variables.IntVar;
 import org.github.schmittjoaopedro.Utils;
 
-import java.util.Arrays;
-
 public class MapColoringProblem {
+
+    private static Model model;
+    private static Utils utils;
+    private static Solver solver;
 
     private static final int RED = 0;
     private static final int GREEN = 1;
@@ -18,7 +20,9 @@ public class MapColoringProblem {
 
     private static Model createModel() {
         // MODELING
-        Model model = new Model("Map coloring");
+        model = new Model("Map coloring");
+        utils = new Utils(model);
+        solver = model.getSolver();
         // Variables and domain
         IntVar WA = model.intVar("WA", new int[]{RED, GREEN, BLUE});
         IntVar NT = model.intVar("NT", new int[]{RED, GREEN, BLUE});
@@ -45,46 +49,46 @@ public class MapColoringProblem {
 
         // Find first solution
         System.out.println("\nFirst solution");
-        Model model = createModel();
-        model.getSolver().solve();
-        printSolution(model);
+        model = createModel();
+        solver.solve();
+        printSolution();
 
         // Find all solutions
         System.out.println("\nAll solutions");
         model = createModel();
-        while (model.getSolver().solve()) {
-            printSolution(model);
+        while (solver.solve()) {
+            printSolution();
         }
 
         // Find restricted solutions
         System.out.println("\nAll solutions given WA = GREEN");
         model = createModel();
-        Utils.getVar(model, "WA").eq(GREEN).post(); // New constraint
-        while (model.getSolver().solve()) {
-            printSolution(model);
+        utils.getIntVar("WA").eq(GREEN).post(); // New constraint
+        while (solver.solve()) {
+            printSolution();
         }
 
         // Explain contradiction
         System.out.println("\nExplain why [WA = GREEN, NT = GREEN] doesn't work");
         model = createModel();
-        Utils.getVar(model, "WA").eq(GREEN).post(); // New constraint
-        Utils.getVar(model, "NT").eq(GREEN).post(); // New constraint
+        utils.getIntVar("WA").eq(GREEN).post(); // New constraint
+        utils.getIntVar("NT").eq(GREEN).post(); // New constraint
         try {
             XParameters.PROOF = true;
-            model.getSolver().setLearningSignedClauses();
-            model.getSolver().propagate();
+            solver.setLearningSignedClauses();
+            solver.propagate();
         } catch (ContradictionException c) {
-            ((LearnSignedClauses) model.getSolver().getLearner()).getExplanation().learnSignedClause(c);
+            ((LearnSignedClauses) solver.getLearner()).getExplanation().learnSignedClause(c);
         }
     }
 
-    private static void printSolution(Model model) {
-        System.out.print(Utils.getVarFormatted(model, "WA", "RED", "GREEN", "BLUE") + ", ");
-        System.out.print(Utils.getVarFormatted(model, "NT", "RED", "GREEN", "BLUE") + ", ");
-        System.out.print(Utils.getVarFormatted(model, "SA", "RED", "GREEN", "BLUE") + ", ");
-        System.out.print(Utils.getVarFormatted(model, "Q", "RED", "GREEN", "BLUE") + ", ");
-        System.out.print(Utils.getVarFormatted(model, "NSW", "RED", "GREEN", "BLUE") + ", ");
-        System.out.print(Utils.getVarFormatted(model, "V", "RED", "GREEN", "BLUE") + ", ");
-        System.out.print(Utils.getVarFormatted(model, "T", "RED", "GREEN", "BLUE") + "\n");
+    private static void printSolution() {
+        System.out.print(utils.getEnumVarFormatted("WA", "RED", "GREEN", "BLUE") + ", ");
+        System.out.print(utils.getEnumVarFormatted("NT", "RED", "GREEN", "BLUE") + ", ");
+        System.out.print(utils.getEnumVarFormatted("SA", "RED", "GREEN", "BLUE") + ", ");
+        System.out.print(utils.getEnumVarFormatted("Q", "RED", "GREEN", "BLUE") + ", ");
+        System.out.print(utils.getEnumVarFormatted("NSW", "RED", "GREEN", "BLUE") + ", ");
+        System.out.print(utils.getEnumVarFormatted("V", "RED", "GREEN", "BLUE") + ", ");
+        System.out.print(utils.getEnumVarFormatted("T", "RED", "GREEN", "BLUE") + "\n");
     }
 }
