@@ -5,6 +5,7 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.RealVar;
 import org.chocosolver.solver.variables.Variable;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class Utils {
         return var;
     }
 
-    public RealVar castReal(IntVar intVar) {
+    public static RealVar castReal(IntVar intVar) {
         RealVar realVar = intVar.getModel().realVar(intVar.getLB(), intVar.getUB(), 1e-6);
         intVar.getModel().eq(realVar, intVar).post();
         return realVar;
@@ -101,5 +102,8 @@ public class Utils {
         return desc;
     }
 
+    public static String fmt(RealVar realVar) {
+        return realVar.getName() + " = " + new DecimalFormat("#.#####").format(realVar.getUB());
+    }
 
 }
