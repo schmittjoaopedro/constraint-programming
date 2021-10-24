@@ -7,10 +7,12 @@ public class UseCase2 {
 
     public static void main(String[] args) {
 
-        Model model = new Model();
+
         final int LOW = 0, MEDIUM = 1, HIGH = 2;
         final int SHORT_TERM = 0, MEDIUM_TERM = 1, LONG_TERM = 2;
         final int EQUITY_FUND = 0, INVESTMENT_FUND = 1, BANK_BOOK = 2;
+
+        Model model = new Model();
 
         // Variables and domains
         IntVar WR = model.intVar("willingnessToRisk", new int[]{LOW, MEDIUM, HIGH});
@@ -33,8 +35,8 @@ public class UseCase2 {
         ID.eq(LONG_TERM).post();
 
         // Finds first feasible solution
-        //model.getSolver().solve();
-        //printVars(WR, ID, RR, PN);
+        model.getSolver().solve();
+        printVars(WR, ID, RR, PN);
 
         // Finds all feasible solutions
         //while (model.getSolver().solve()) printVars(WR, ID, RR, PN);

@@ -18,6 +18,7 @@ public class UseCase1 {
         IntVar V   = model.intVar("V",   new int[]{RED, GREEN, BLUE});
         IntVar T   = model.intVar("T",   new int[]{RED, GREEN, BLUE});
 
+        // Constraints
         WA.ne(NT).post();
         WA.ne(SA).post();
         NT.ne(Q).post();
@@ -29,15 +30,15 @@ public class UseCase1 {
         NSW.ne(V).post();
 
         // Find first feasible solution
-        //model.getSolver().solve();
-        //printVars(WA, NT, SA, Q, NSW, V, T);
+        model.getSolver().solve();
+        printVars(WA, NT, SA, Q, NSW, V, T);
 
         // Find all feasible solutions
         //while (model.getSolver().solve()) printVars(WA, NT, SA, Q, NSW, V, T);
 
         // Find all solutions restricted by WA = BLUE
-        WA.eq(BLUE).post();
-        while (model.getSolver().solve()) printVars(WA, NT, SA, Q, NSW, V, T);
+        //WA.eq(BLUE).post();
+        //while (model.getSolver().solve()) printVars(WA, NT, SA, Q, NSW, V, T);
 
     }
 

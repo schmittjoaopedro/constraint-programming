@@ -10,11 +10,11 @@ public class UseCase3 {
 
     public static void main(String[] args) {
 
-        // Model and constants
-        Model model = new Model();
         final int MAX_SEATS = 200;
         final int BLUE = 0, RED = 1, WHITE = 2, NO_COLOR = 3;
         final int STANDARD = 0, PREMIUM = 1, SPECIAL = 2, NO_TYPE = 3;
+
+        Model model = new Model();
 
         // Wagon
         RealVar length_mm = model.realVar("wagon.length_mm", 10000.0, 20000.0, 1e-6);
@@ -85,13 +85,13 @@ public class UseCase3 {
         model.setObjective(true, used_space);
 
         // Find first solution
-        //model.getSolver().solve();
-        //printVariables(length_mm, nr_passengers, used_space);
+        model.getSolver().solve();
+        printVariables(length_mm, nr_passengers, used_space);
 
         // Find best solution
-        while (model.getSolver().solve()) {
-            printVariables(length_mm, nr_passengers, used_space);
-        }
+        //while (model.getSolver().solve()) {
+        //    printVariables(length_mm, nr_passengers, used_space);
+        //}
 
     }
 
